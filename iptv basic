@@ -1,0 +1,53 @@
+#まず、必要となるライブラリをインポートしましょう。
+
+
+import socket
+import select
+
+#次に、送信側と受信側のIPアドレスとポート番号を設定します。
+
+
+# 送信側
+SEND_IP = '送信側のIPアドレス'
+SEND_PORT = 12345
+
+# 受信側
+RECEIVE_IP = '受信側のIPアドレス'
+RECEIVE_PORT = 54321
+
+#次に、送信用の関数と受信用の関数を定義します。
+
+
+# 送信用関数
+def send(data):
+    send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    send_socket.connect((SEND_IP, SEND_PORT))
+    send_socket.sendall(data)
+    send_socket.close()
+
+# 受信用関数
+def receive():
+    receive_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    receive_socket.bind((RECEIVE_IP, RECEIVE_PORT))
+    receive_socket.listen(1)
+    conn, addr = receive_socket.accept()
+    data = conn.recv(1024)
+    conn.close()
+    return data
+
+
+#最後に、送信と受信を行うメインの処理を書きます。
+
+
+while True:
+    socket_list = [socket.socket(), send_socket]
+    read_sockets, write_sockets, error_sockets = select.select(socket_list, [], [])
+    
+    for sock in read_sockets:
+        if sock == receive_socket:
+            data = receive()
+            # 受信したデータの処理を行う
+        else:
+            # 送信するデータを入力
+            data = input("送信するデータを入力してください: ")
+            send(data.encode())
